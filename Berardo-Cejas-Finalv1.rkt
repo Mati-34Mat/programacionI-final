@@ -511,3 +511,57 @@
                     0 0 1 0
                     1 0 0 1))
 
+
+;============================== 12 ==============================;
+
+;--- DISEÑO DE DATOS ---;
+;represento el mensaje como ListOf(Number), y el codigo de Hamming como ListOf(Number)
+
+;--- SIGNATURA Y DECLARACION DE PROPOSITO ---;
+;mensaje-a-bloque: ListOf(Number) -> ListOf(Number)
+
+;dado un mensaje, devuelvo un bloque con mensaje y códigos
+;de corrección de Hamming.
+ 
+;pasos:
+;calculo el tamaño del bloque y lista de posiciones 
+;ubico el mensaje en el bloque (ceros en posiciones de paridad) 
+;obtengo los grupos y calculo las paridades de Hamming 
+;armo el bloque provisorio con bit-0 en 0 y paridades de Hamming 
+;calculo la paridad global (bit 0) sobre ese bloque provisorio 
+;y armo la lista completa de paridades para ubicarlas en el bloque final 
+ 
+;--- EJEMPLOS ---;
+;in: (list 0 0 1 1 0 0 0 1 1 1 0) out: (list 0 0 1 0  1 0 1 1  1 0 0 0  1 1 1 0)
+
+;--- DEFINICION ---;
+(define (mensaje-a-bloque mensaje)
+  (local [
+          (define tam (tamaño-bloque (length mensaje)))
+          (define l-pos (posiciones tam))
+    
+          (define bloque-msg (ubicar-mensaje mensaje l-pos))
+    
+          (define grupos (obtener-grupos tam))
+          (define par-hamming (calcular-paridades grupos bloque-msg))
+    
+          (define bloque-prov (ubicar-paridades (cons 0 par-hamming) bloque-msg))
+    
+          (define par-global (paridad bloque-prov))
+    
+          (define todas-par (cons par-global par-hamming))]
+
+    (ubicar-paridades todas-par bloque-prov)))
+
+;--- EVALUACION ---;
+(check-expect (mensaje-a-bloque MENSAJE1)
+              (list 0 0 1 0
+                    1 0 1 1
+                    1 0 0 0
+                    1 1 1 0))
+
+(check-expect (mensaje-a-bloque MENSAJE2)
+              (mensaje-a-bloque MENSAJE2))
+
+(check-expect (mensaje-a-bloque MENSAJE3)
+              (mensaje-a-bloque MENSAJE3))
