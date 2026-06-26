@@ -122,7 +122,8 @@
 
 ;--- DEFINCION ---;
 
-;sumanat : Natural Natural -> Natural
+; sumanat : Natural Natural -> Natural
+; devuelve la suma de dos números naturales utilizando únicamente recursión
 (define (sumanat n m)
   (cond
     [(zero? m) n]
@@ -131,7 +132,11 @@
   )
 
 (define (binario->natural l)
-  (local [(define (aux lb pos)
+  (local [
+          ; aux : ListOf(Number) Natural -> Natural
+          ; dada una lista que representa un número binario y la posición
+          ; del bit actual, devuelve el valor decimal correspondiente
+          (define (aux lb pos)
             (cond
               [(empty? lb) 0]
               [(cons? lb) (sumanat (* (first lb) (expt 2 pos))
@@ -199,25 +204,30 @@
 
 (define (obtener-grupos n)
   (local [
-    ;todas las posiciones del 0 al tamaño del bloque
+    ; todas-pos : ListOf(Number)
+    ; todas las posiciones del 0 al tamaño del bloque
     (define todas-pos (posiciones n))
-    
+
+    ; pos-en-binario : ListOf(ListOf(Number))
     ;convertimos cada posicion a su representacion en binario
     (define pos-en-binario (map natural->binario todas-pos))
-    
-    ;cantidad de bits de paridad para saber cuantos grupos armar
+
+    ; n-paridades : Number
+    ;cantidad de bits de paridad necesarios para el bloque
     (define n-paridades (inexact->exact (ceiling (bloque-a-bits-redundancia n))))
-    
-    ;por cada bit de paridad, nos quedamos con las posiciones
-    ;que tienen un 1 en ese bit (ultimo para bit 1, penultimo para bit 2, etc)
-    ;y las convertimos de vuelta a naturales
+
+    ; grupo-para-bit : Number -> ListOf(Number)
+    ; por cada bit de paridad, nos quedamos con las posiciones
+    ; que tienen un 1 en ese bit (ultimo para bit 1, penultimo para bit 2, etc)
+    ; y las convertimos de vuelta a naturales
     (define (grupo-para-bit p)
       
-      ; tiene-uno-en-p? : ListOf(Number) -> Boolean
-      ; dado un número en binario (desde el bit menos significativo),
-      ; determina si tiene un 1 en la posición p
-      (local [(define (tiene-uno-en-p? bin)
-        (uno-en-pos? bin p))]
+      (local [
+              ; tiene-uno-en-p? : ListOf(Number) -> Boolean
+              ; dado un número en binario (desde el bit menos significativo),
+              ; determina si tiene un 1 en la posición p
+              (define (tiene-uno-en-p? bin)
+                (uno-en-pos? bin p))]
       (map binario->natural (filter tiene-uno-en-p? pos-en-binario))))]
     
     ;construimos un grupo para cada bit de paridad
@@ -405,10 +415,11 @@
 ;--- DEFINICION ---;
 (define (calcular-paridades grupos bloque)
 
-  ; paridadDelGrupo : ListOf(Number) -> Number
-  ; dada una lista de posiciones correspondiente a un grupo,
-  ; devuelve la paridad de los bits del bloque ubicados en esas posiciones
-  (local [(define (paridadDelGrupo grupo)
+  (local [
+          ; paridadDelGrupo : ListOf(Number) -> Number
+          ; dada una lista de posiciones correspondiente a un grupo,
+          ; devuelve la paridad de los bits del bloque ubicados en esas posiciones
+          (define (paridadDelGrupo grupo)
             (paridad (valores-en-posiciones bloque grupo)))]
     (map paridadDelGrupo grupos)))
 
@@ -500,9 +511,10 @@
 ;--- DEFINICION ---;
 (define (ubicar-paridades paridades bloque)
   
-  ; pares : ListOf(Par [x y])
-  ; empareja cada bit del bloque con su posición
-  (local [(define pares (emparejar bloque (posiciones (length bloque))))
+  (local [
+          ; pares : ListOf(Par [x y])
+          ; empareja cada bit del bloque con su posición
+          (define pares (emparejar bloque (posiciones (length bloque))))
           
           ; aux : LisfOf(Par [x y]) ListOf(Number) -> ListOf(Number)
           ; recibe los pares (bit, posición) restantes y las paridades
