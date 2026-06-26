@@ -34,7 +34,7 @@
 ;============================= 1 ===============================;
 
 ;Diseñe una función que dada una lista de ceros y unos (un mensaje)
-;devuelva un 1 si la cantidad de unos en la lista es impar y 0 en caso contrario.
+;devuelva un 1 si la cantidad de unos en la lista es impar y 0 en caso contrario
 
 ;--- DISEÑO DE DATOS ---;
 ;la lista de 0s y 1s sera una ListOf(Number) cada number 0 o 1
@@ -79,7 +79,7 @@
 ;natural->binario: Natural -> ListOf(Number)
 
 ;dado un número natural n, devuelvo una lista de ceros y unos que representa n en binario,
-;comenzando desde la cifra menos significativa.
+;comenzando desde la cifra menos significativa
 
 ;--- EJEMPLOS ---;
 ;in: 3     out: (list 1 1)
@@ -110,7 +110,7 @@
 ;binario->natural: ListOf(Number) -> Natural
 
 ;dada una lista de ceros y unos que representa un número en binario
-;desde la cifra menos significativa, devuelvo el número natural equivalente.
+;desde la cifra menos significativa, devuelvo el número natural equivalente
 
 ;--- EJEMPLOS ---;
 ;in: (list 1 1)         out: 3
@@ -153,8 +153,8 @@
 ;uno-en-pos?: ListOf(Number) Natural -> Boolean
 
 ;dado un número binario (lista desde cifra menos significativa)
-;y una posición p, determina si hay un 1 en la posición p.
-;Si p es mayor o igual al largo de la lista, se considera que hay un 0 (extensión con ceros).
+;y una posición p, determina si hay un 1 en la posición p
+;Si p es mayor o igual al largo de la lista, se considera que hay un 0 (extensión con ceros)
 
 ;--- EJEMPLOS ---;
 ;in: (list 1 0 0) 0      out: #true
@@ -189,7 +189,7 @@
 
 ;dado el tamaño de bloque de un mensaje con corrección Hamming,
 ;devuelvo una lista de listas donde cada sublista contiene las posiciones
-;asociadas a un bit de paridad. Cada bit de paridad está incluido en su propio grupo.
+;asociadas a un bit de paridad. Cada bit de paridad está incluido en su propio grupo
 
 ;--- EJEMPLOS ---;
 ;in: 16 out: (list (list 1 3 5 7 9 11 13 15)
@@ -212,11 +212,15 @@
     ;que tienen un 1 en ese bit (ultimo para bit 1, penultimo para bit 2, etc)
     ;y las convertimos de vuelta a naturales
     (define (grupo-para-bit p)
+      
+      ; tiene-uno-en-p? : ListOf(Number) -> Boolean
+      ; dado un número en binario (desde el bit menos significativo),
+      ; determina si tiene un 1 en la posición p
       (local [(define (tiene-uno-en-p? bin)
         (uno-en-pos? bin p))]
       (map binario->natural (filter tiene-uno-en-p? pos-en-binario))))]
     
-    ; 5. construimos un grupo para cada bit de paridad
+    ;construimos un grupo para cada bit de paridad
     (map grupo-para-bit (posiciones n-paridades))))
 
 ;--- EVALUACION ---;
@@ -280,7 +284,7 @@
 ;valores-en-posiciones: ListOf(Any) ListOf(Number) -> ListOf(Any)
 
 ;dada una lista de valores lv y una lista de posiciones ln (ordenada ascendentemente),
-;devuelvo los elementos de lv que están en las posiciones indicadas.
+;devuelvo los elementos de lv que están en las posiciones indicadas
 
 ;--- EJEMPLOS ---;
 ;in: (list 12 21 34 47) (list 0 1 2)       out: (list 12 21 34)
@@ -348,10 +352,10 @@
 ;--- SIGNATURA Y DECLARACION DE PROPOSITO ---;
 ;ubicar-mensaje : ListOf(Number) ListOf(Number) -> ListOf(Number)
 
-;dado un mensaje y la lista de posiciones (range 0 tam-bloque 1),
-;devuelve el bloque con el mensaje ubicado: en posiciones que son
+; dado un mensaje y la lista de posiciones (range 0 tam-bloque 1),
+; devuelve el bloque con el mensaje ubicado: en posiciones que son
 ; potencias de 2 o 0 coloca 0 (reservadas para paridad),
-; en el resto ubica los bits del mensaje en orden.
+; en el resto ubica los bits del mensaje en orden
 
 ;--- EJEMPLOS ---;
 ;in: (list 1 0 1 0 0 1 0 1 0 0 1) (range 0 16 1)  out: (list 0 0 0 1 0 0 1 0 0 0 1 0 1 0 0 1)
@@ -359,7 +363,11 @@
 ;--- DEFINICION ---;
 (define (ubicar-mensaje mensaje posiciones-bloque)
   (local [
-          ;recorremos la lista de posiciones, cuando la posición NO es potencia de 2, consumimos un bit del mensaje.
+          ;recorremos la lista de posiciones, cuando la posición NO es potencia de 2, consumimos un bit del mensaje
+
+          ; aux : ListOf(Number) ListOf(Number) -> ListOf(Number)
+          ; recibe la lista de posiciones del bloque y los bits restantes del mensaje,
+          ; y devuelve el bloque con los bits ubicados y ceros en las posiciones de paridad
           (define (aux ps msg)
             (cond
               [(empty? ps) empty]
@@ -388,7 +396,7 @@
 
 ;dada una lista de grupos de posiciones y un bloque,
 ;devuelve la lista de paridades: para cada grupo, calcula la paridad de los bits del
-;bloque en las posiciones del grupo.
+;bloque en las posiciones del grupo
 
 ;--- EJEMPLOS ---;
 ;in: (obtener-grupos 16) (list 0 0 0 0 0 0 1 1 0 0 0 0 1 1 1 0) out: (list 0 1 1 1)
@@ -396,6 +404,10 @@
 
 ;--- DEFINICION ---;
 (define (calcular-paridades grupos bloque)
+
+  ; paridadDelGrupo : ListOf(Number) -> Number
+  ; dada una lista de posiciones correspondiente a un grupo,
+  ; devuelve la paridad de los bits del bloque ubicados en esas posiciones
   (local [(define (paridadDelGrupo grupo)
             (paridad (valores-en-posiciones bloque grupo)))]
     (map paridadDelGrupo grupos)))
@@ -487,9 +499,15 @@
 
 ;--- DEFINICION ---;
 (define (ubicar-paridades paridades bloque)
-  ;pares : ListOf(Par [x y])
+  
+  ; pares : ListOf(Par [x y])
+  ; empareja cada bit del bloque con su posición
   (local [(define pares (emparejar bloque (posiciones (length bloque))))
+          
           ; aux : LisfOf(Par [x y]) ListOf(Number) -> ListOf(Number)
+          ; recibe los pares (bit, posición) restantes y las paridades
+          ; pendientes de ubicar, y construye el bloque final reemplazando
+          ; los bits de las posiciones de paridad por su valor correspondiente
           (define (aux pares-restantes par-rest)
             (cond [(empty? pares-restantes) empty]
                   [(es-potencia-de-dos? (Par-s (first pares-restantes)))
@@ -521,7 +539,7 @@
 ;mensaje-a-bloque: ListOf(Number) -> ListOf(Number)
 
 ;dado un mensaje, devuelvo un bloque con mensaje y códigos
-;de corrección de Hamming.
+;de corrección de Hamming
  
 ;pasos:
 ;calculo el tamaño del bloque y lista de posiciones 
@@ -537,18 +555,36 @@
 ;--- DEFINICION ---;
 (define (mensaje-a-bloque mensaje)
   (local [
+          ; tam : Number
+          ; tamaño del bloque con bits de redundancia
           (define tam (tamaño-bloque (length mensaje)))
+
+          ; l-pos : ListOf(Number)
+          ; posiciones del bloque, desde 0 hasta tam-1
           (define l-pos (posiciones tam))
-    
+
+          ; bloque-msg : ListOf(Number)
+          ; bloque con el mensaje ubicado y ceros en las posiciones de paridad
           (define bloque-msg (ubicar-mensaje mensaje l-pos))
-    
+          
+          ; grupos : ListOf(ListOf(Number))
+          ; grupos de posiciones asociados a cada bit de paridad
           (define grupos (obtener-grupos tam))
+
+          ; par-hamming : ListOf(Number)
+          ; paridades calculadas para cada grupo de Hamming
           (define par-hamming (calcular-paridades grupos bloque-msg))
-    
+
+          ; bloque-prov : ListOf(Number)
+          ; bloque con las paridades de Hamming ubicadas y el bit 0 en cero
           (define bloque-prov (ubicar-paridades (cons 0 par-hamming) bloque-msg))
-    
+
+          ; par-global : Number
+          ; paridad del bloque completo
           (define par-global (paridad bloque-prov))
-    
+
+          ; todas-par : ListOf(Number)
+          ; lista con la paridad global seguida de las paridades de Hamming
           (define todas-par (cons par-global par-hamming))]
 
     (ubicar-paridades todas-par bloque-prov)))
