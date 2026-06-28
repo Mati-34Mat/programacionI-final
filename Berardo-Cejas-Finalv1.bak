@@ -133,15 +133,14 @@
 
 (define (binario->natural l)
   (local [
-          ;aux : ListOf(Number) Natural -> Natural
-          ;dada una lista que representa un número binario y la posición
-          ;del bit actual, devuelve el valor decimal correspondiente
+          ; aux : ListOf(Number) Natural -> Natural
+          ; dada una lista que representa un número binario y la posición
+          ; del bit actual, devuelve el valor decimal correspondiente
           (define (aux lb pos)
             (cond
               [(empty? lb) 0]
               [(cons? lb) (sumanat (* (first lb) (expt 2 pos))
                        (aux (rest lb) (+ pos 1)))]))]
-    ;In
     (aux l 0)))
 
 ;--- EVALUACION ---;
@@ -205,33 +204,32 @@
 
 (define (obtener-grupos n)
   (local [
-    ;todas-pos : ListOf(Number)
-    ;todas las posiciones del 0 al tamaño del bloque
+    ; todas-pos : ListOf(Number)
+    ; todas las posiciones del 0 al tamaño del bloque
     (define todas-pos (posiciones n))
 
-    ;pos-en-binario : ListOf(ListOf(Number))
+    ; pos-en-binario : ListOf(ListOf(Number))
     ;convertimos cada posicion a su representacion en binario
     (define pos-en-binario (map natural->binario todas-pos))
 
-    ;n-paridades : Number
+    ; n-paridades : Number
     ;cantidad de bits de paridad necesarios para el bloque
     (define n-paridades (inexact->exact (ceiling (bloque-a-bits-redundancia n))))
 
-    ;grupo-para-bit : Number -> ListOf(Number)
-    ;por cada bit de paridad, nos quedamos con las posiciones
-    ;que tienen un 1 en ese bit (ultimo para bit 1, penultimo para bit 2, etc)
-    ;y las convertimos de vuelta a naturales
+    ; grupo-para-bit : Number -> ListOf(Number)
+    ; por cada bit de paridad, nos quedamos con las posiciones
+    ; que tienen un 1 en ese bit (ultimo para bit 1, penultimo para bit 2, etc)
+    ; y las convertimos de vuelta a naturales
     (define (grupo-para-bit p)
-       (local [
+      
+      (local [
               ; tiene-uno-en-p? : ListOf(Number) -> Boolean
               ; dado un número en binario (desde el bit menos significativo),
               ; determina si tiene un 1 en la posición p
               (define (tiene-uno-en-p? bin)
                 (uno-en-pos? bin p))]
-         ;In:
       (map binario->natural (filter tiene-uno-en-p? pos-en-binario))))]
     
-    ;in
     ;construimos un grupo para cada bit de paridad
     (map grupo-para-bit (posiciones n-paridades))))
 
@@ -328,6 +326,8 @@
 ;es-potencia-de-dos?: Number -> Boolean
 
 ;dado un numero devuelve #true si el número es 0 o potencia de 2, #false en otro caso
+;buscando en la web, una muy buena forma para saber si un numero es potencia de otro es
+;chequear si and n (- n 1) = 0
 
 ;--- EJEMPLOS ---;
 ;in: 0   out: #true
@@ -375,9 +375,9 @@
   (local [
           ;recorremos la lista de posiciones, cuando la posición NO es potencia de 2, consumimos un bit del mensaje
 
-          ;aux : ListOf(Number) ListOf(Number) -> ListOf(Number)
-          ;recibe la lista de posiciones del bloque y los bits restantes del mensaje,
-          ;y devuelve el bloque con los bits ubicados y ceros en las posiciones de paridad
+          ; aux : ListOf(Number) ListOf(Number) -> ListOf(Number)
+          ; recibe la lista de posiciones del bloque y los bits restantes del mensaje,
+          ; y devuelve el bloque con los bits ubicados y ceros en las posiciones de paridad
           (define (aux ps msg)
             (cond
               [(empty? ps) empty]
@@ -387,7 +387,7 @@
                (cons 0 (aux (rest ps) empty))]
               [(cons? msg)
                (cons (first msg) (aux (rest ps) (rest msg)))] ))]
-    ;In
+
     (aux posiciones-bloque mensaje)))
 
 ;--- EVALUACION ---;
@@ -416,12 +416,11 @@
 (define (calcular-paridades grupos bloque)
 
   (local [
-          ;paridadDelGrupo : ListOf(Number) -> Number
-          ;dada una lista de posiciones correspondiente a un grupo,
-          ;devuelve la paridad de los bits del bloque ubicados en esas posiciones
+          ; paridadDelGrupo : ListOf(Number) -> Number
+          ; dada una lista de posiciones correspondiente a un grupo,
+          ; devuelve la paridad de los bits del bloque ubicados en esas posiciones
           (define (paridadDelGrupo grupo)
             (paridad (valores-en-posiciones bloque grupo)))]
-    ;In
     (map paridadDelGrupo grupos)))
 
 ;--- EVALUACION ---;
@@ -513,14 +512,14 @@
 (define (ubicar-paridades paridades bloque)
   
   (local [
-          ;pares : ListOf(Par [x y])
-          ;empareja cada bit del bloque con su posición
+          ; pares : ListOf(Par [x y])
+          ; empareja cada bit del bloque con su posición
           (define pares (emparejar bloque (posiciones (length bloque))))
           
-          ;aux : LisfOf(Par [x y]) ListOf(Number) -> ListOf(Number)
-          ;recibe los pares (bit, posición) restantes y las paridades
-          ;pendientes de ubicar, y construye el bloque final reemplazando
-          ;los bits de las posiciones de paridad por su valor correspondiente
+          ; aux : LisfOf(Par [x y]) ListOf(Number) -> ListOf(Number)
+          ; recibe los pares (bit, posición) restantes y las paridades
+          ; pendientes de ubicar, y construye el bloque final reemplazando
+          ; los bits de las posiciones de paridad por su valor correspondiente
           (define (aux pares-restantes par-rest)
             (cond [(empty? pares-restantes) empty]
                   [(es-potencia-de-dos? (Par-s (first pares-restantes)))
@@ -529,8 +528,6 @@
                   [else
                    (cons (Par-p (first pares-restantes))
                          (aux (rest pares-restantes) par-rest))]))]
-
-    ;In
     (aux pares paridades)))
 
 ;--- EVALUACION ---;
@@ -543,6 +540,7 @@
                     1 0 1 0
                     0 0 1 0
                     1 0 0 1))
+
 
 ;============================== 12 ==============================;
 
@@ -559,54 +557,49 @@
 ;calculo el tamaño del bloque y lista de posiciones 
 ;ubico el mensaje en el bloque (ceros en posiciones de paridad) 
 ;obtengo los grupos y calculo las paridades de Hamming 
-;calculo la paridad global (bit 0) sobre un bloque temporal 
-;con las paridades de Hamming colocadas (bit 0 en 0)
-;armo la lista completa de paridades (global + Hamming)
-;ubico TODAS las paridades en el bloque original (con el mensaje)
-
+;armo el bloque provisorio con bit-0 en 0 y paridades de Hamming 
+;calculo la paridad global (bit 0) sobre ese bloque provisorio 
+;y armo la lista completa de paridades para ubicarlas en el bloque final 
+ 
 ;--- EJEMPLOS ---;
 ;in: (list 0 0 1 1 0 0 0 1 1 1 0) out: (list 0 0 1 0  1 0 1 1  1 0 0 0  1 1 1 0)
 
 ;--- DEFINICION ---;
 (define (mensaje-a-bloque mensaje)
   (local [
-          ;tam : Number
-          ;tamaño del bloque con bits de redundancia
+          ; tam : Number
+          ; tamaño del bloque con bits de redundancia
           (define tam (tamaño-bloque (length mensaje)))
 
-          ;l-pos : ListOf(Number)
-          ;posiciones del bloque, desde 0 hasta tam-1
+          ; l-pos : ListOf(Number)
+          ; posiciones del bloque, desde 0 hasta tam-1
           (define l-pos (posiciones tam))
 
-          ;bloque-msg : ListOf(Number)
-          ;bloque con el mensaje ubicado y ceros en las posiciones de paridad
+          ; bloque-msg : ListOf(Number)
+          ; bloque con el mensaje ubicado y ceros en las posiciones de paridad
           (define bloque-msg (ubicar-mensaje mensaje l-pos))
           
-          ;grupos : ListOf(ListOf(Number))
-          ;grupos de posiciones asociados a cada bit de paridad
+          ; grupos : ListOf(ListOf(Number))
+          ; grupos de posiciones asociados a cada bit de paridad
           (define grupos (obtener-grupos tam))
 
-          ;par-hamming : ListOf(Number)
-          ;paridades calculadas para cada grupo de Hamming
+          ; par-hamming : ListOf(Number)
+          ; paridades calculadas para cada grupo de Hamming
           (define par-hamming (calcular-paridades grupos bloque-msg))
 
-          ;bloque-temporal : ListOf(Number)
-          ;bloque temporal con las paridades de Hamming ubicadas 
-          ;y el bit 0 en cero (solo para calcular la paridad global)
-          (define bloque-temporal (ubicar-paridades (cons 0 par-hamming) bloque-msg))
+          ; bloque-prov : ListOf(Number)
+          ; bloque con las paridades de Hamming ubicadas y el bit 0 en cero
+          (define bloque-prov (ubicar-paridades (cons 0 par-hamming) bloque-msg))
 
-          ;par-global : Number
-          ;paridad del bloque completo (calculada sobre el bloque temporal)
-          (define par-global (paridad bloque-temporal))
+          ; par-global : Number
+          ; paridad del bloque completo
+          (define par-global (paridad bloque-prov))
 
-          ;todas-par : ListOf(Number)
-          ;lista con la paridad global seguida de las paridades de Hamming
+          ; todas-par : ListOf(Number)
+          ; lista con la paridad global seguida de las paridades de Hamming
           (define todas-par (cons par-global par-hamming))]
-    
-    ;In
-    ;Ubico TODAS las paridades (global + Hamming) en el bloque original
-    ;que contiene el mensaje, para obtener el bloque final
-    (ubicar-paridades todas-par bloque-msg)))
+
+    (ubicar-paridades todas-par bloque-prov)))
 
 ;--- EVALUACION ---;
 (check-expect (mensaje-a-bloque MENSAJE1)
@@ -616,7 +609,7 @@
                     1 1 1 0))
 
 (check-expect (mensaje-a-bloque MENSAJE2)
-              (list 1 0 0 1 1 0 1 0 1 0 1 0 1 0 0 1))
+              (mensaje-a-bloque MENSAJE2))
 
 (check-expect (mensaje-a-bloque MENSAJE3)
-              (list 0 1 1 1 0 0 1 0 0 0 1 0 1 0 0 0))
+              (mensaje-a-bloque MENSAJE3))
